@@ -1,0 +1,5 @@
+{
+  "name": "Kernel Methods & One-Class SVM Visualization",
+  "description": "A 3Blue1Brown inspired interactive presentation explaining Kernel Methods and One-Class SVM for Anomaly Detection.",
+  "requestFramePermissions": []
+}
