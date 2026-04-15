@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Stars, Float, Text as ThreeText } from '@react-three/drei';
 import * as THREE from 'three';
 import confetti from 'canvas-confetti';
@@ -61,23 +61,23 @@ const SlideContainer = ({ children, title, subtitle }: { children: React.ReactNo
 
 const Scene1Intro = () => (
   <SlideContainer>
-    <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 1 }} className="text-center space-y-6">
-      <div className="w-40 h-40 bg-yellow-400 rounded-full mx-auto mb-8 flex items-center justify-center shadow-[0_0_80px_rgba(250,176,5,0.2)]">
-        <Shield size={80} className="text-black" />
+    <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 1 }} className="text-center space-y-10">
+      <div className="w-60 h-60 bg-yellow-400 rounded-full mx-auto mb-12 flex items-center justify-center shadow-[0_0_120px_rgba(250,176,5,0.3)]">
+        <Shield size={120} className="text-black" />
       </div>
-      <h1 className="text-7xl font-black mb-6 tracking-tighter leading-none">
+      <h1 className="text-8xl font-black mb-8 tracking-tighter leading-none">
         One-Class <Highlight>SVM</Highlight>
       </h1>
-      <p className="text-3xl text-gray-400 font-light max-w-4xl mx-auto leading-relaxed">
+      <p className="text-3xl text-gray-400 font-light max-w-5xl mx-auto leading-relaxed whitespace-nowrap">
         The Guardian of the Norm: Detecting the <Highlight color="red">Invisible</Highlight> in a World of Patterns
       </p>
-      <div className="pt-12 flex items-center justify-center gap-8 text-gray-500">
-        <div className="flex items-center gap-4 animate-pulse">
-          <Search size={24} />
-          <span className="uppercase tracking-[0.4em] text-sm font-bold">Initializing Analysis</span>
+      <div className="pt-16 flex items-center justify-center gap-12 text-gray-500">
+        <div className="flex items-center gap-6 animate-pulse">
+          <Search size={32} />
+          <span className="uppercase tracking-[0.5em] text-lg font-bold">Initializing Analysis</span>
         </div>
-        <div className="w-px h-6 bg-gray-800" />
-        <span className="text-sm font-mono text-gray-600 tracking-widest">v2.5.0-PRO</span>
+        <div className="w-px h-10 bg-gray-800" />
+        <span className="text-lg font-mono text-gray-600 tracking-widest">v2.5.0-PRO</span>
       </div>
     </motion.div>
   </SlideContainer>
@@ -92,7 +92,7 @@ const Scene2Haystack = () => {
 
   return (
     <SlideContainer title="The Needle in a Haystack" subtitle="Finding the 0.01% that matters.">
-      <div className="relative w-[450px] h-[450px] bg-black/20 rounded-full border border-white/5 flex items-center justify-center shadow-inner">
+      <div className="relative w-[550px] h-[550px] bg-black/20 rounded-full border border-white/5 flex items-center justify-center shadow-inner">
         <svg viewBox="-10 -10 20 20" className="w-full h-full">
           {points.map((p, i) => (
             <motion.circle
@@ -102,7 +102,7 @@ const Scene2Haystack = () => {
               transition={{ delay: i * 0.002 }}
               cx={p.x}
               cy={p.y}
-              r={p.isAnomaly ? 0.3 : 0.1}
+              r={p.isAnomaly ? 0.5 : 0.15}
               fill={p.isAnomaly ? "#ff6b6b" : "#4dabf7"}
               className={p.isAnomaly ? "animate-pulse" : ""}
             />
@@ -110,7 +110,7 @@ const Scene2Haystack = () => {
           {points[0] && (
             <motion.circle
               initial={{ r: 0, opacity: 0 }}
-              animate={{ r: 2, opacity: [0, 0.5, 0] }}
+              animate={{ r: 3, opacity: [0, 0.5, 0] }}
               transition={{ repeat: Infinity, duration: 2 }}
               cx={points[0].x}
               cy={points[0].y}
@@ -173,27 +173,27 @@ const Scene4AccuracyTrap = () => (
 
 const Scene5PerspectiveShift = () => (
   <SlideContainer title="A Shift in Perspective" subtitle="From 'Who is bad?' to 'What is normal?'.">
-    <div className="flex gap-24 items-center">
+    <div className="flex gap-32 items-center">
       <div className="text-center">
-        <p className="text-gray-500 mb-8 uppercase tracking-[0.3em] text-xs font-bold">Traditional ML</p>
-        <div className="p-12 bg-white/5 rounded-[2rem] border border-white/10 w-80 h-80 flex flex-col items-center justify-center gap-6">
-          <div className="flex gap-4">
-            <div className="w-10 h-10 bg-blue-400 rounded-full" />
-            <div className="w-10 h-10 bg-red-400 rounded-full" />
+        <p className="text-gray-500 mb-10 uppercase tracking-[0.3em] text-sm font-bold">Traditional ML</p>
+        <div className="p-16 bg-white/5 rounded-[3rem] border border-white/10 w-[450px] h-[450px] flex flex-col items-center justify-center gap-10">
+          <div className="flex gap-6">
+            <div className="w-16 h-16 bg-blue-400 rounded-full" />
+            <div className="w-16 h-16 bg-red-400 rounded-full" />
           </div>
-          <p className="text-2xl font-bold">Binary Classification</p>
-          <p className="text-gray-500">Needs both labels</p>
+          <p className="text-4xl font-bold">Binary Classification</p>
+          <p className="text-2xl text-gray-500">Needs both labels</p>
         </div>
       </div>
-      <motion.div animate={{ x: [0, 15, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-        <ArrowRight size={64} className="text-yellow-400" />
+      <motion.div animate={{ x: [0, 20, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
+        <ArrowRight size={80} className="text-yellow-400" />
       </motion.div>
       <div className="text-center">
-        <p className="text-gray-500 mb-8 uppercase tracking-[0.3em] text-xs font-bold">One-Class SVM</p>
-        <div className="p-12 bg-yellow-400/10 rounded-[2rem] border border-yellow-400/20 w-80 h-80 flex flex-col items-center justify-center gap-6">
-          <div className="w-16 h-16 bg-blue-400 rounded-full shadow-[0_0_30px_rgba(77,171,247,0.4)]" />
-          <p className="text-2xl font-bold">Novelty Detection</p>
-          <p className="text-gray-500">Learns only the Norm</p>
+        <p className="text-gray-500 mb-10 uppercase tracking-[0.3em] text-sm font-bold">One-Class SVM</p>
+        <div className="p-16 bg-yellow-400/10 rounded-[3rem] border border-yellow-400/20 w-[450px] h-[450px] flex flex-col items-center justify-center gap-10">
+          <div className="w-24 h-24 bg-blue-400 rounded-full shadow-[0_0_50px_rgba(77,171,247,0.5)]" />
+          <p className="text-4xl font-bold">Novelty Detection</p>
+          <p className="text-2xl text-gray-500">Learns only the Norm</p>
         </div>
       </div>
     </div>
@@ -202,32 +202,32 @@ const Scene5PerspectiveShift = () => (
 
 const Scene6DefiningNormal = () => (
   <SlideContainer title="Defining the Norm" subtitle="Drawing the boundary of trust.">
-    <div className="relative w-[600px] h-[600px] flex items-center justify-center">
+    <div className="relative w-[800px] h-[800px] flex items-center justify-center">
       <motion.div 
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 1 }}
-        className="absolute w-80 h-80 border-2 border-yellow-400 rounded-full bg-yellow-400/5 shadow-[0_0_60px_rgba(250,176,5,0.15)]"
+        className="absolute w-[450px] h-[450px] border-4 border-yellow-400 rounded-full bg-yellow-400/5 shadow-[0_0_100px_rgba(250,176,5,0.2)]"
       />
-      <div className="relative z-10 grid grid-cols-4 gap-6">
+      <div className="relative z-10 grid grid-cols-4 gap-10">
         {Array.from({ length: 16 }).map((_, i) => (
           <motion.div 
             key={i}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: i * 0.05 }}
-            className="w-6 h-6 bg-blue-400 rounded-full shadow-[0_0_10px_rgba(77,171,247,0.3)]"
+            className="w-10 h-10 bg-blue-400 rounded-full shadow-[0_0_20px_rgba(77,171,247,0.4)]"
           />
         ))}
       </div>
       <motion.div 
-        initial={{ x: 300, opacity: 0 }}
-        animate={{ x: 220, opacity: 1 }}
+        initial={{ x: 400, opacity: 0 }}
+        animate={{ x: 320, opacity: 1 }}
         transition={{ delay: 1.5 }}
-        className="absolute flex flex-col items-center gap-3"
+        className="absolute flex flex-col items-center gap-6"
       >
-        <div className="w-6 h-6 bg-red-400 rounded-full animate-bounce shadow-[0_0_15px_rgba(255,107,107,0.5)]" />
-        <p className="text-red-400 font-mono text-lg font-bold">OUTLIER</p>
+        <div className="w-10 h-10 bg-red-400 rounded-full animate-bounce shadow-[0_0_25px_rgba(255,107,107,0.6)]" />
+        <p className="text-red-400 font-mono text-2xl font-bold">OUTLIER</p>
       </motion.div>
     </div>
   </SlideContainer>
@@ -235,28 +235,28 @@ const Scene6DefiningNormal = () => (
 
 const Scene7Flexibility = ({ nu, setNu }: { nu: number, setNu: (v: number) => void }) => (
   <SlideContainer title="The Flexibility Balance" subtitle="Tuning the strictness of the Guardian.">
-    <div className="flex gap-24 items-center w-full">
-      <div className="relative w-[500px] h-[500px] flex items-center justify-center shrink-0">
+    <div className="flex gap-32 items-center w-full">
+      <div className="relative w-[700px] h-[700px] flex items-center justify-center shrink-0">
         <motion.div 
-          animate={{ scale: 0.6 + nu * 2, opacity: 1 }}
-          className="absolute w-80 h-80 border-2 border-yellow-400 rounded-full bg-yellow-400/5 shadow-[0_0_40px_rgba(250,176,5,0.1)]"
+          animate={{ scale: 0.8 + nu * 2.5, opacity: 1 }}
+          className="absolute w-[400px] h-[400px] border-4 border-yellow-400 rounded-full bg-yellow-400/5 shadow-[0_0_80px_rgba(250,176,5,0.15)]"
         />
-        <div className="grid grid-cols-3 gap-6">
-          {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-6 h-6 bg-blue-400 rounded-full opacity-60" />)}
+        <div className="grid grid-cols-3 gap-10">
+          {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-10 h-10 bg-blue-400 rounded-full opacity-60" />)}
         </div>
       </div>
-      <div className="flex-1 max-w-xl space-y-12">
-        <div className="p-10 bg-white/5 rounded-[2.5rem] border border-white/10 shadow-xl">
-          <h4 className="text-3xl font-bold mb-8 flex items-center gap-4">
-            <RefreshCcw size={32} className="text-yellow-400" />
-            Parameter: <Highlight>Nu (ν)</Highlight>
+      <div className="flex-1 max-w-2xl space-y-16">
+        <div className="p-16 bg-white/5 rounded-[3rem] border border-white/10 shadow-xl">
+          <h4 className="text-5xl font-bold mb-12 flex items-center gap-6 whitespace-nowrap">
+            <RefreshCcw size={48} className="text-yellow-400" />
+            Parameter: <span className="whitespace-nowrap"><Highlight>Nu (ν)</Highlight></span>
           </h4>
           <input 
             type="range" min="0.01" max="0.5" step="0.01" value={nu} 
             onChange={(e) => setNu(parseFloat(e.target.value))}
-            className="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-yellow-400 mb-8"
+            className="w-full h-4 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-yellow-400 mb-12"
           />
-          <p className="text-2xl text-gray-400 leading-relaxed min-h-[8rem]">
+          <p className="text-3xl text-gray-400 leading-relaxed min-h-[10rem]">
             {nu < 0.1 ? "Strict: Encloses almost all points. High risk of missing subtle anomalies." : 
              nu > 0.3 ? "Relaxed: Allows more outliers. High risk of false alarms." : 
              "Balanced: A compromise between precision and recall."}
@@ -267,127 +267,82 @@ const Scene7Flexibility = ({ nu, setNu }: { nu: number, setNu: (v: number) => vo
   </SlideContainer>
 );
 
+
+const Kernel3DView = () => {
+  const points = useMemo(() => {
+    return Array.from({ length: 100 }).map(() => {
+      const r = Math.random() * 4;
+      const theta = Math.random() * Math.PI * 2;
+      const x = Math.cos(theta) * r;
+      const y = Math.sin(theta) * r;
+      // Parabolic projection
+      const z = (x * x + y * y) * 0.5;
+      return [x, y, z];
+    });
+  }, []);
+
+  return (
+    <div className="w-full h-full">
+      <Canvas>
+        <PerspectiveCamera makeDefault position={[8, 5, 8]} />
+        <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={1} />
+        <ambientLight intensity={0.5} />
+        <pointLight position={[5, 5, 5]} />
+        <gridHelper args={[10, 10, 0x444444, 0x222222]} />
+        {points.map((p, i) => (
+          <mesh key={i} position={p as any}>
+            <sphereGeometry args={[0.1, 8, 8]} />
+            <meshStandardMaterial color="#fab005" emissive="#fab005" emissiveIntensity={0.5} />
+          </mesh>
+        ))}
+      </Canvas>
+    </div>
+  );
+};
+
 const Scene8KernelIntuition = () => (
   <SlideContainer title="The Kernel Bridge" subtitle="Seeing patterns in higher dimensions.">
-    <div className="max-w-5xl space-y-16">
+    <div className="max-w-6xl space-y-12">
       <p className="text-3xl text-gray-300 leading-relaxed text-center">
         Sometimes, data is tangled in 2D. We use a <Highlight>Kernel Function</Highlight> to project it into a space where it becomes separable.
       </p>
-      <div className="grid grid-cols-2 gap-16">
+      <div className="grid grid-cols-2 gap-12">
         {/* Input Space 2D */}
-        <div className="p-12 bg-white/5 rounded-[2.5rem] border border-white/10 text-center shadow-xl overflow-hidden">
-          <p className="text-xs text-gray-500 mb-8 uppercase tracking-[0.3em] font-bold">Input Space (2D Oxy)</p>
-          <div className="relative w-64 h-64 mx-auto border border-gray-800 rounded-lg flex items-center justify-center">
-            {/* Axes Animation */}
-            <motion.div 
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 1, delay: 0.5 }}
-              className="absolute w-full h-px bg-gray-700 origin-center" 
-            />
-            <motion.div 
-              initial={{ scaleY: 0 }}
-              animate={{ scaleY: 1 }}
-              transition={{ duration: 1, delay: 0.5 }}
-              className="absolute h-full w-px bg-gray-700 origin-center" 
-            />
-            
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="absolute top-0 right-2 text-[10px] text-gray-600">y</motion.div>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="absolute bottom-2 right-0 text-[10px] text-gray-600">x</motion.div>
-            
-            {/* Point Animation: Single point -> Position */}
-            <motion.div 
-              initial={{ scale: 0, x: 0, y: 0 }}
-              animate={{ 
-                scale: [0, 1.5, 1],
-                x: [0, 0, 40],
-                y: [0, 0, -30]
-              }}
-              transition={{ 
-                duration: 4, 
-                repeat: Infinity,
-                times: [0, 0.2, 0.5],
-                repeatDelay: 1
-              }}
-              className="w-4 h-4 bg-blue-400 rounded-full shadow-[0_0_15px_rgba(77,171,247,0.6)] z-10"
-            />
-            
-            {/* Projection Lines Animation */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 0, 1] }}
-              transition={{ duration: 4, repeat: Infinity, times: [0, 0.5, 0.7], repeatDelay: 1 }}
-              className="absolute"
-              style={{ left: '50%', top: '50%', transform: 'translate(40px, -30px)' }}
-            >
-              <motion.div 
-                initial={{ scaleY: 0 }}
-                animate={{ scaleY: 1 }}
-                transition={{ duration: 0.5, delay: 2.2 }}
-                className="absolute h-[30px] w-px bg-blue-400/30 border-l border-dashed border-blue-400/50 origin-top" 
-                style={{ top: 0 }} 
-              />
-              <motion.div 
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: 0.5, delay: 2.2 }}
-                className="absolute w-[40px] h-px bg-blue-400/30 border-t border-dashed border-blue-400/50 origin-right" 
-                style={{ left: -40 }} 
-              />
-            </motion.div>
+        <div className="p-10 bg-white/5 rounded-[2.5rem] border border-white/10 text-center shadow-xl overflow-hidden flex flex-col">
+          <p className="text-xs text-gray-500 mb-6 uppercase tracking-[0.3em] font-bold">Input Space (2D Oxy)</p>
+          <div className="relative w-full aspect-square max-w-[300px] mx-auto border border-gray-800 rounded-lg flex items-center justify-center bg-black/20">
+            <div className="absolute w-full h-px bg-gray-800" />
+            <div className="absolute h-full w-px bg-gray-800" />
+            {/* Tangled points */}
+            {[...Array(40)].map((_, i) => {
+              const r = Math.random() * 4;
+              const theta = Math.random() * Math.PI * 2;
+              const x = Math.cos(theta) * r * 20;
+              const y = Math.sin(theta) * r * 20;
+              return (
+                <div 
+                  key={i} 
+                  className="absolute w-2 h-2 rounded-full"
+                  style={{ 
+                    left: `calc(50% + ${x}px)`, 
+                    top: `calc(50% + ${y}px)`,
+                    backgroundColor: r < 2 ? '#4dabf7' : '#ff6b6b'
+                  }}
+                />
+              );
+            })}
+            <div className="absolute inset-0 border-2 border-dashed border-white/10 rounded-full scale-50" />
           </div>
+          <p className="mt-6 text-gray-500 text-sm italic">Non-separable in 2D</p>
         </div>
 
         {/* Feature Space 3D */}
-        <div className="p-12 bg-yellow-400/5 rounded-[2.5rem] border border-yellow-400/20 text-center shadow-xl overflow-hidden">
-          <p className="text-xs text-gray-500 mb-8 uppercase tracking-[0.3em] font-bold">Feature Space (3D Oxyz)</p>
-          <div className="relative w-64 h-64 mx-auto flex items-center justify-center perspective-[1000px]">
-            <motion.div 
-              className="relative w-full h-full preserve-3d"
-              animate={{ rotateY: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            >
-              {/* Axes */}
-              <div className="absolute w-full h-px bg-yellow-400/20 top-1/2" />
-              <div className="absolute h-full w-px bg-yellow-400/20 left-1/2" />
-              <div className="absolute w-full h-px bg-yellow-400/20 top-1/2 rotate-x-90" />
-              
-              {/* Line to Plane Animation */}
-              <motion.div 
-                initial={{ scaleX: 1, scaleY: 0, opacity: 0 }}
-                animate={{ 
-                  scaleY: [0, 0, 1, 1],
-                  opacity: [0, 0.5, 0.8, 0.8],
-                  rotateX: [0, 0, 45, 45]
-                }}
-                transition={{ 
-                  duration: 5, 
-                  repeat: Infinity,
-                  times: [0, 0.2, 0.6, 1],
-                  repeatDelay: 1
-                }}
-                className="absolute w-40 h-40 bg-yellow-400/20 border border-yellow-400/40 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 shadow-[0_0_30px_rgba(250,176,5,0.2)]"
-              />
-              
-              {/* Point in 3D: Animating from origin to 3D position */}
-              <motion.div 
-                initial={{ z: 0, x: 0, y: 0, opacity: 0 }}
-                animate={{ 
-                  z: [0, 0, 50, 50],
-                  opacity: [0, 1, 1, 1],
-                  y: [0, 0, -20, -20],
-                  x: [0, 0, 20, 20]
-                }}
-                transition={{ 
-                  duration: 5, 
-                  repeat: Infinity, 
-                  times: [0, 0.3, 0.7, 1],
-                  repeatDelay: 1
-                }}
-                className="absolute w-3 h-3 bg-yellow-400 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 shadow-[0_0_15px_rgba(250,176,5,0.8)]"
-              />
-            </motion.div>
+        <div className="p-10 bg-yellow-400/5 rounded-[2.5rem] border border-yellow-400/20 text-center shadow-xl overflow-hidden flex flex-col">
+          <p className="text-xs text-gray-500 mb-6 uppercase tracking-[0.3em] font-bold">Feature Space (3D Oxyz)</p>
+          <div className="relative w-full aspect-square max-w-[300px] mx-auto rounded-lg overflow-hidden bg-black/40 border border-white/5">
+            <Kernel3DView />
           </div>
+          <p className="mt-6 text-yellow-400/70 text-sm italic">Linearly separable in 3D</p>
         </div>
       </div>
     </div>
@@ -409,30 +364,158 @@ const Scene9RBFMountain = () => {
   }, []);
 
   return (
-    <div className="w-full h-full bg-black relative">
-      <Canvas>
-        <PerspectiveCamera makeDefault position={[12, 12, 12]} />
-        <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={0.3} />
+    <SlideContainer title="The RBF Mountain" subtitle="Mapping similarity to height.">
+      <div className="flex w-full h-full gap-12 items-center">
+        <div className="flex-1 space-y-8">
+          <p className="text-4xl text-gray-400 font-light leading-relaxed">
+            The <Highlight>Radial Basis Function</Highlight> creates a "mountain" of similarity. 
+            Normal points sit at the peak; anomalies fall into the valleys.
+          </p>
+          <div className="p-8 bg-white/5 rounded-3xl border border-white/10">
+            <p className="text-xl text-gray-500 font-mono">
+              Height(x) = exp(-γ ||x - c||²)
+            </p>
+          </div>
+        </div>
+        <div className="w-[600px] h-[600px] bg-black/40 rounded-[3rem] border border-white/5 overflow-hidden shadow-2xl relative">
+          <Canvas>
+            <PerspectiveCamera makeDefault position={[8, 8, 8]} />
+            <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={0.5} />
+            <ambientLight intensity={0.5} />
+            <pointLight position={[10, 10, 10]} intensity={1} />
+            <gridHelper args={[20, 20, 0x333333, 0x111111]} />
+            {points.map((p, i) => (
+              <mesh key={i} position={p as any}>
+                <sphereGeometry args={[0.08, 12, 12]} />
+                <meshStandardMaterial 
+                  color={p[2] > 1.2 ? "#4dabf7" : "#ff6b6b"} 
+                  emissive={p[2] > 1.2 ? "#1c7ed6" : "#c92a2a"}
+                  emissiveIntensity={0.5}
+                />
+              </mesh>
+            ))}
+            <Stars radius={100} depth={50} count={2000} factor={4} saturation={0} fade speed={1} />
+          </Canvas>
+        </div>
+      </div>
+    </SlideContainer>
+  );
+};
+
+const CameraHandler = ({ mode, isUserControlling }: { mode: 'flat' | 'hyper', isUserControlling: boolean }) => {
+  useFrame((state) => {
+    if (isUserControlling) return;
+    const targetPos = mode === 'flat' ? new THREE.Vector3(0, 14, 0.1) : new THREE.Vector3(12, 4, 12);
+    state.camera.position.lerp(targetPos, 0.05);
+    state.camera.lookAt(0, 1.5, 0);
+    state.camera.updateProjectionMatrix();
+  });
+  return null;
+};
+
+const SlicingIllustration = () => {
+  const [mode, setMode] = useState<'flat' | 'hyper'>('flat');
+  const [isUserControlling, setIsUserControlling] = useState(false);
+  
+  const intervalRef = useRef<any>(null);
+  const timeoutRef = useRef<any>(null);
+
+  const startAutoToggle = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      setMode(prev => prev === 'flat' ? 'hyper' : 'flat');
+    }, 4000);
+  };
+
+  useEffect(() => {
+    startAutoToggle();
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  const handleInteraction = () => {
+    setIsUserControlling(true);
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    
+    timeoutRef.current = setTimeout(() => {
+      setIsUserControlling(false);
+      setMode(prev => prev === 'flat' ? 'hyper' : 'flat');
+      startAutoToggle();
+    }, 5000);
+  };
+
+  const points = useMemo(() => {
+    return Array.from({ length: 200 }).map(() => {
+      const r = Math.random() * 5;
+      const theta = Math.random() * Math.PI * 2;
+      const x = Math.cos(theta) * r;
+      const y = Math.sin(theta) * r;
+      const z = (x * x + y * y) * 0.4;
+      return { x, y, z, r };
+    });
+  }, []);
+
+  return (
+    <div 
+      className="relative w-[1000px] h-[650px] bg-black/40 rounded-[3rem] border border-white/5 overflow-hidden shadow-2xl mx-auto cursor-move"
+      onPointerDown={handleInteraction}
+      onPointerMove={handleInteraction}
+      onWheel={handleInteraction}
+    >
+      <Canvas shadows camera={{ position: [10, 8, 10], fov: 45 }}>
+        <CameraHandler mode={mode} isUserControlling={isUserControlling} />
+        <OrbitControls enableZoom={true} enablePan={false} />
         <ambientLight intensity={0.5} />
-        <pointLight position={[10, 10, 10]} intensity={1} />
-        <gridHelper args={[30, 30, 0x333333, 0x111111]} />
+        <pointLight position={[10, 10, 10]} intensity={1.5} castShadow />
+        
+        <gridHelper args={[20, 20, 0x333333, 0x111111]} position={[0, -0.1, 0]} />
+
+        {/* The Slicing Hyperplane */}
+        <mesh position={[0, 2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[15, 15]} />
+          <meshStandardMaterial 
+            color="#fab005" 
+            transparent 
+            opacity={0.4} 
+            side={THREE.DoubleSide}
+            emissive="#fab005"
+            emissiveIntensity={0.3}
+          />
+        </mesh>
+        <gridHelper args={[15, 15, 0xfab005, 0xfab005]} position={[0, 2.01, 0]} material-opacity={0.2} material-transparent />
+
+        {/* Points */}
         {points.map((p, i) => (
-          <mesh key={i} position={p as any}>
-            <sphereGeometry args={[0.08, 12, 12]} />
+          <mesh key={i} position={[p.x, p.z, p.y]}>
+            <sphereGeometry args={[0.12, 12, 12]} />
             <meshStandardMaterial 
-              color={p[2] > 1.2 ? "#4dabf7" : "#ff6b6b"} 
-              emissive={p[2] > 1.2 ? "#1c7ed6" : "#c92a2a"}
+              color={p.z > 2 ? "#ff6b6b" : "#4dabf7"} 
+              emissive={p.z > 2 ? "#c92a2a" : "#1c7ed6"}
               emissiveIntensity={0.5}
             />
           </mesh>
         ))}
-        <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+
+        {/* 2D Boundary Circle (only visible in flat mode) */}
+        {mode === 'flat' && (
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
+            <ringGeometry args={[2.236, 2.336, 64]} />
+            <meshBasicMaterial color="#fab005" transparent opacity={0.8} />
+          </mesh>
+        )}
       </Canvas>
-      <div className="absolute top-16 left-16 max-w-xl pointer-events-none">
-        <h2 className="text-5xl font-bold mb-4">The RBF Mountain</h2>
-        <p className="text-2xl text-gray-400 font-light">
-          The <Highlight>Radial Basis Function</Highlight> creates a "mountain" of similarity. 
-          Normal points sit at the peak; anomalies fall into the valleys.
+
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+        <div className="px-6 py-2 bg-yellow-400/20 border border-yellow-400/40 rounded-full backdrop-blur-md">
+          <p className="text-yellow-400 font-mono text-sm font-bold uppercase tracking-[0.3em]">
+            {mode === 'flat' ? 'Input Space (2D View)' : 'Feature Space (3D View)'}
+          </p>
+        </div>
+        <p className="text-gray-500 text-xs font-mono">
+          {mode === 'flat' ? 'Non-linear boundary in 2D' : 'Linear hyperplane slicing the 3D projection'}
         </p>
       </div>
     </div>
@@ -441,18 +524,23 @@ const Scene9RBFMountain = () => {
 
 const Scene10Slicing = () => (
   <SlideContainer title="Slicing the Norm" subtitle="The Hyperplane as a threshold.">
-    <div className="max-w-4xl space-y-8">
-      <div className="p-10 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-sm">
-        <p className="text-2xl text-gray-300 leading-relaxed mb-8">
-          In this high-dimensional space, we don't draw a circle. We draw a <Highlight>Flat Plane</Highlight>.
+    <div className="max-w-7xl flex flex-col items-center gap-8">
+      <div className="p-8 bg-white/5 rounded-[2rem] border border-white/10 backdrop-blur-sm w-full max-w-5xl">
+        <p className="text-3xl text-gray-300 leading-relaxed mb-6 text-center font-bold">
+          In this high-dimensional space, we don't draw a circle. We draw a <span className="whitespace-nowrap"><Highlight>Flat Plane</Highlight></span>.
         </p>
-        <div className="flex items-center gap-6">
-          <div className="flex-1 h-1 bg-gradient-to-r from-transparent via-yellow-400 to-transparent shadow-[0_0_20px_rgba(250,176,5,0.5)]" />
-          <p className="text-yellow-400 font-mono font-bold">DECISION BOUNDARY</p>
-          <div className="flex-1 h-1 bg-gradient-to-r from-transparent via-yellow-400 to-transparent shadow-[0_0_20px_rgba(250,176,5,0.5)]" />
+        <div className="flex items-center gap-8">
+          <div className="flex-1 h-1 bg-gradient-to-r from-transparent via-yellow-400 to-transparent shadow-[0_0_20px_rgba(250,176,5,0.6)]" />
+          <p className="text-yellow-400 font-mono font-black text-2xl tracking-widest">DECISION BOUNDARY</p>
+          <div className="flex-1 h-1 bg-gradient-to-r from-transparent via-yellow-400 to-transparent shadow-[0_0_20px_rgba(250,176,5,0.6)]" />
         </div>
       </div>
-      <p className="text-xl text-gray-500 text-center italic">"Anything that doesn't reach this height is an anomaly."</p>
+      
+      <div className="my-4">
+        <SlicingIllustration />
+      </div>
+
+      <p className="text-2xl text-gray-500 text-center italic font-light mt-4">"Anything that doesn't reach this height is an anomaly."</p>
     </div>
   </SlideContainer>
 );
@@ -648,9 +736,9 @@ const Scene15InteractiveLab = ({ nu, setNu, gamma, setGamma }: any) => {
 
   return (
     <SlideContainer title="Interactive Lab: The Guardian's Logic" subtitle="Visualize how math shapes the boundary of trust.">
-      <div className="flex gap-10 items-center w-full max-w-7xl h-full pb-10">
+      <div className="flex gap-16 items-center w-full max-w-[100rem] h-full pb-10">
         {/* Visualization Area */}
-        <div className="relative w-[500px] h-[500px] bg-black/40 rounded-3xl border border-white/5 overflow-hidden shadow-2xl shrink-0">
+        <div className="relative w-[750px] h-[750px] bg-black/40 rounded-[3rem] border border-white/5 overflow-hidden shadow-2xl shrink-0">
           <svg viewBox="-10 -10 20 20" className="w-full h-full">
             {/* Decision Surface */}
             <g opacity="0.4">
@@ -675,31 +763,55 @@ const Scene15InteractiveLab = ({ nu, setNu, gamma, setGamma }: any) => {
                     width="0.5"
                     height="0.5"
                     fill="#fab005"
-                    opacity={isBoundary ? 0.8 : Math.min(0.3, (val - rho) * 2)}
+                    opacity={isBoundary ? 0.9 : Math.min(0.3, (val - rho) * 2)}
                     stroke={isBoundary ? "#fab005" : "none"}
-                    strokeWidth={isBoundary ? "0.08" : "0"}
+                    strokeWidth={isBoundary ? "0.1" : "0"}
                   />
                 );
               })}
             </g>
             
-            {/* Boundary Glow/Border */}
+            {/* Boundary Glow/Border - Enhanced for visibility */}
             <g>
               {grid.map((p, i) => {
                 const val = decisionGrid[i];
-                // Process cells exactly at the threshold
-                if (Math.abs(val - rho) > 0.04) return null;
+                const isInside = val >= rho;
+                if (!isInside) return null;
                 
+                const isBoundary = grid.some((gp, gi) => {
+                  if (Math.abs(gp.gx - p.gx) <= 0.51 && Math.abs(gp.gy - p.gy) <= 0.51) {
+                    return decisionGrid[gi] < rho;
+                  }
+                  return false;
+                });
+
+                if (!isBoundary) return null;
+
                 return (
-                  <circle
-                    key={`b-${i}`}
-                    cx={p.gx}
-                    cy={p.gy}
-                    r={0.15}
-                    fill="#fab005"
-                    className="animate-pulse"
-                    style={{ filter: 'blur(0.1px)' }}
-                  />
+                  <g key={`b-group-${i}`}>
+                    <motion.rect
+                      x={p.gx - 0.25}
+                      y={p.gy - 0.25}
+                      width="0.5"
+                      height="0.5"
+                      fill="none"
+                      stroke="#fab005"
+                      strokeWidth="0.15"
+                      initial={{ opacity: 0.5 }}
+                      animate={{ opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
+                    {/* Extra highlight dots at threshold */}
+                    {Math.abs(val - rho) < 0.05 && (
+                      <circle
+                        cx={p.gx}
+                        cy={p.gy}
+                        r={0.15}
+                        fill="#fab005"
+                        className="animate-pulse"
+                      />
+                    )}
+                  </g>
                 );
               })}
             </g>
@@ -759,30 +871,30 @@ const Scene15InteractiveLab = ({ nu, setNu, gamma, setGamma }: any) => {
           </svg>
 
           {/* Stats Overlay */}
-          <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md p-3 rounded-xl border border-white/10 font-mono text-[10px] space-y-1">
-            <div className="flex justify-between gap-6">
+          <div className="absolute bottom-6 left-6 bg-black/60 backdrop-blur-md p-5 rounded-2xl border border-white/10 font-mono text-sm space-y-2">
+            <div className="flex justify-between gap-8">
               <span className="text-gray-500 uppercase">Total Points</span>
-              <span>{normalPoints.length + anomalyPoints.length}</span>
+              <span className="text-lg">{normalPoints.length + anomalyPoints.length}</span>
             </div>
-            <div className="flex justify-between gap-6">
+            <div className="flex justify-between gap-8">
               <span className="text-red-400 uppercase">Outliers</span>
-              <span className="text-red-400 font-bold">{outlierCount}</span>
+              <span className="text-red-400 font-bold text-lg">{outlierCount}</span>
             </div>
-            <div className="flex justify-between gap-6">
+            <div className="flex justify-between gap-8">
               <span className="text-yellow-400 uppercase">Threshold (ρ)</span>
-              <span>{rho.toFixed(4)}</span>
+              <span className="text-lg">{rho.toFixed(4)}</span>
             </div>
           </div>
         </div>
 
         {/* Controls & Math Area */}
-        <div className="flex-1 space-y-6">
-          <div className="bg-white/5 p-6 rounded-3xl border border-white/10 backdrop-blur-sm">
-            <h4 className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-4">The Decision Equation</h4>
-            <div className="math-font text-2xl text-center py-2">
+        <div className="flex-1 space-y-12">
+          <div className="bg-white/5 p-12 rounded-[3rem] border border-white/10 backdrop-blur-sm">
+            <h4 className="text-sm font-bold text-gray-500 uppercase tracking-[0.2em] mb-8">The Decision Equation</h4>
+            <div className="math-font text-5xl text-center py-6 whitespace-nowrap">
               f(x) = sgn( 
               <EquationPart active={hoveredParam === 'gamma'} label="Kernel Width">
-                Σ αᵢ K<sub className="text-xs">γ</sub>(x, xᵢ)
+                Σ αᵢ K<sub className="text-sm">γ</sub>(x, xᵢ)
               </EquationPart>
               - 
               <EquationPart active={hoveredParam === 'nu'} label="Threshold">
@@ -790,7 +902,7 @@ const Scene15InteractiveLab = ({ nu, setNu, gamma, setGamma }: any) => {
               </EquationPart>
               )
             </div>
-            <div className="mt-4 text-xs text-gray-400 leading-relaxed min-h-[3rem]">
+            <div className="mt-10 text-2xl text-gray-400 leading-relaxed min-h-[8rem]">
               {hoveredParam === 'nu' ? (
                 <p>The parameter <Highlight>ν (Nu)</Highlight> directly determines the value of <Highlight>ρ (Rho)</Highlight>. It sets the "height" of the slice through our similarity mountain.</p>
               ) : hoveredParam === 'gamma' ? (
@@ -801,43 +913,43 @@ const Scene15InteractiveLab = ({ nu, setNu, gamma, setGamma }: any) => {
             </div>
           </div>
 
-          <div className="space-y-8 px-2">
+          <div className="space-y-10 px-4">
             <div 
-              className="space-y-3"
+              className="space-y-4"
               onMouseEnter={() => setHoveredParam('nu')}
               onMouseLeave={() => setHoveredParam(null)}
             >
               <div className="flex justify-between items-end">
-                <label className="block text-[10px] font-bold text-yellow-400 uppercase tracking-widest">Strictness (ν)</label>
-                <span className="text-xl font-mono">{nu.toFixed(2)}</span>
+                <label className="block text-sm font-bold text-yellow-400 uppercase tracking-widest">Strictness (ν)</label>
+                <span className="text-2xl font-mono">{nu.toFixed(2)}</span>
               </div>
               <input 
                 type="range" min="0.01" max="0.5" step="0.01" value={nu} 
                 onChange={e => setNu(parseFloat(e.target.value))} 
-                className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-yellow-400" 
+                className="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-yellow-400" 
               />
             </div>
 
             <div 
-              className="space-y-3"
+              className="space-y-4"
               onMouseEnter={() => setHoveredParam('gamma')}
               onMouseLeave={() => setHoveredParam(null)}
             >
               <div className="flex justify-between items-end">
-                <label className="block text-[10px] font-bold text-blue-400 uppercase tracking-widest">Flexibility (γ)</label>
-                <span className="text-xl font-mono">{gamma.toFixed(2)}</span>
+                <label className="block text-sm font-bold text-blue-400 uppercase tracking-widest">Flexibility (γ)</label>
+                <span className="text-2xl font-mono">{gamma.toFixed(2)}</span>
               </div>
               <input 
                 type="range" min="0.05" max="1.5" step="0.05" value={gamma} 
                 onChange={e => setGamma(parseFloat(e.target.value))} 
-                className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-blue-400" 
+                className="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-blue-400" 
               />
             </div>
           </div>
 
-          <div className="p-5 bg-blue-400/5 rounded-2xl border border-blue-400/10 flex items-start gap-4">
-            <Activity className="text-blue-400 shrink-0 mt-1" size={16} />
-            <p className="text-xs text-gray-400 italic leading-relaxed">
+          <div className="p-6 bg-blue-400/5 rounded-3xl border border-blue-400/10 flex items-start gap-6">
+            <Activity className="text-blue-400 shrink-0 mt-1" size={24} />
+            <p className="text-lg text-gray-400 italic leading-relaxed">
               Notice how <Highlight color="blue">Gamma</Highlight> changes the "reach" of each point, while <Highlight>Nu</Highlight> shifts the entire boundary in or out.
             </p>
           </div>
@@ -905,6 +1017,9 @@ export const Presentation = () => {
   const [step, setStep] = useState(0);
   const [nu, setNu] = useState(0.1);
   const [gamma, setGamma] = useState(0.5);
+  
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
 
   const totalSteps = 17;
 
@@ -929,6 +1044,23 @@ export const Presentation = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [step]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current) {
+        const { clientWidth, clientHeight } = containerRef.current;
+        const targetWidth = 1920;
+        const targetHeight = 1080;
+        const scaleX = clientWidth / targetWidth;
+        const scaleY = clientHeight / targetHeight;
+        setScale(Math.min(scaleX, scaleY));
+      }
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const renderScene = () => {
     switch (step) {
@@ -964,19 +1096,29 @@ export const Presentation = () => {
         />
       </div>
 
-      <div className="flex-1 relative">
-        <AnimatePresence mode="wait">
-          <motion.div 
-            key={step}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="w-full h-full"
-          >
-            {renderScene()}
-          </motion.div>
-        </AnimatePresence>
+      <div className="flex-1 relative overflow-hidden" ref={containerRef}>
+        <div 
+          className="absolute top-1/2 left-1/2"
+          style={{ 
+            width: 1920, 
+            height: 1080, 
+            transform: `translate(-50%, -50%) scale(${scale})`,
+            transformOrigin: 'center center'
+          }}
+        >
+          <AnimatePresence mode="wait">
+            <motion.div 
+              key={step}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className="w-full h-full"
+            >
+              {renderScene()}
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Navigation */}

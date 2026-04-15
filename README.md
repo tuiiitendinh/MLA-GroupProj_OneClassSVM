@@ -1,89 +1,20 @@
-# Kernel Methods & One-Class SVM Visualization
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+</div>
 
-A 3Blue1Brown-inspired interactive presentation explaining Kernel Methods and One-Class SVM for Anomaly Detection. Built with React, Three.js, and Framer Motion.
+# Run and deploy your AI Studio app
 
-## Prerequisites
+This contains everything you need to run your app locally.
 
-- **Node.js v20+** — required by TailwindCSS v4
-- **npm** (bundled with Node.js)
+View your app in AI Studio: https://ai.studio/apps/7d3b4b62-7775-42f2-bb61-11de730e6f06
 
-Download from [https://nodejs.org/](https://nodejs.org/) — choose the **LTS** or **Current** version (≥ 20).
+## Run Locally
 
-## Setup & Run
+**Prerequisites:**  Node.js
 
-### macOS / Linux
 
-```bash
-# 1. Install dependencies
-npm install
-
-# 2. Start dev server
-npm run dev
-```
-
-> **Tip:** If your default `node` is v18 but you have a newer version via Homebrew:
-> ```bash
-> export PATH="/opt/homebrew/opt/node@25/bin:$PATH"
-> npm install && npm run dev
-> ```
-> Or use the automated setup script:
-> ```bash
-> chmod +x setup.sh && ./setup.sh
-> ```
-
-### Windows
-
-```powershell
-# 1. Open Terminal / PowerShell in this folder
-
-# 2. Install dependencies
-npm install
-
-# 3. Start dev server
-npm run dev
-```
-
-> **Tip:** If you have multiple Node versions, use [nvm-windows](https://github.com/coreybutler/nvm-windows):
-> ```powershell
-> nvm install 20
-> nvm use 20
-> npm install && npm run dev
-> ```
-
-### Open in Browser
-
-After running `npm run dev`, open **http://localhost:3000**.
-
-Use arrow keys **←** / **→** to navigate between slides.
-
-## Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start dev server on port 3000 |
-| `npm run build` | Production build → `dist/` |
-| `npm run preview` | Preview production build |
-| `npm run lint` | Type-check with TypeScript |
-
-## Tech Stack
-
-| Layer | Library |
-|-------|---------|
-| Framework | React 19 + TypeScript |
-| Build | Vite 6 |
-| Styling | Tailwind CSS 4 |
-| 3D Rendering | Three.js + React Three Fiber |
-| Animations | Framer Motion |
-| Icons | Lucide React |
-
-## Project Structure
-
-```
-src/
-├── main.tsx              # App entry point
-├── App.tsx               # Root component
-├── index.css             # Global styles
-└── components/
-    ├── Presentation.tsx  # All interactive slides
-    └── Math.tsx          # Math rendering components
-```
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`
