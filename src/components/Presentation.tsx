@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Stars, Float, Text as ThreeText } from '@react-three/drei';
 import * as THREE from 'three';
 import confetti from 'canvas-confetti';
@@ -32,7 +32,7 @@ const SlideContainer = ({ children, title, subtitle }: { children: React.ReactNo
           <motion.h2 
             initial={{ opacity: 0, y: -20 }} 
             animate={{ opacity: 1, y: 0 }} 
-            className="text-5xl font-bold mb-3 tracking-tight bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent"
+            className="text-6xl font-bold mb-3 tracking-tight bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent"
           >
             {title}
           </motion.h2>
@@ -42,7 +42,7 @@ const SlideContainer = ({ children, title, subtitle }: { children: React.ReactNo
             initial={{ opacity: 0, y: -20 }} 
             animate={{ opacity: 1, y: 0 }} 
             transition={{ delay: 0.1 }} 
-            className="text-2xl text-gray-400 font-light"
+            className="text-3xl text-gray-400 font-light"
           >
             {subtitle}
           </motion.p>
@@ -92,7 +92,7 @@ const Scene2Haystack = () => {
 
   return (
     <SlideContainer title="The Needle in a Haystack" subtitle="Finding the 0.01% that matters.">
-      <div className="relative w-[550px] h-[550px] bg-black/20 rounded-full border border-white/5 flex items-center justify-center shadow-inner">
+      <div className="relative w-[460px] h-[460px] bg-black/20 rounded-full border border-white/5 flex items-center justify-center shadow-inner">
         <svg viewBox="-10 -10 20 20" className="w-full h-full">
           {points.map((p, i) => (
             <motion.circle
@@ -202,12 +202,12 @@ const Scene5PerspectiveShift = () => (
 
 const Scene6DefiningNormal = () => (
   <SlideContainer title="Defining the Norm" subtitle="Drawing the boundary of trust.">
-    <div className="relative w-[800px] h-[800px] flex items-center justify-center">
+    <div className="relative w-[460px] h-[460px] flex items-center justify-center">
       <motion.div 
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 1 }}
-        className="absolute w-[450px] h-[450px] border-4 border-yellow-400 rounded-full bg-yellow-400/5 shadow-[0_0_100px_rgba(250,176,5,0.2)]"
+        className="absolute w-[300px] h-[300px] border-4 border-yellow-400 rounded-full bg-yellow-400/5 shadow-[0_0_100px_rgba(250,176,5,0.2)]"
       />
       <div className="relative z-10 grid grid-cols-4 gap-10">
         {Array.from({ length: 16 }).map((_, i) => (
@@ -233,39 +233,78 @@ const Scene6DefiningNormal = () => (
   </SlideContainer>
 );
 
-const Scene7Flexibility = ({ nu, setNu }: { nu: number, setNu: (v: number) => void }) => (
-  <SlideContainer title="The Flexibility Balance" subtitle="Tuning the strictness of the Guardian.">
-    <div className="flex gap-32 items-center w-full">
-      <div className="relative w-[700px] h-[700px] flex items-center justify-center shrink-0">
-        <motion.div 
-          animate={{ scale: 0.8 + nu * 2.5, opacity: 1 }}
-          className="absolute w-[400px] h-[400px] border-4 border-yellow-400 rounded-full bg-yellow-400/5 shadow-[0_0_80px_rgba(250,176,5,0.15)]"
-        />
-        <div className="grid grid-cols-3 gap-10">
-          {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-10 h-10 bg-blue-400 rounded-full opacity-60" />)}
-        </div>
-      </div>
-      <div className="flex-1 max-w-2xl space-y-16">
-        <div className="p-16 bg-white/5 rounded-[3rem] border border-white/10 shadow-xl">
-          <h4 className="text-5xl font-bold mb-12 flex items-center gap-6 whitespace-nowrap">
-            <RefreshCcw size={48} className="text-yellow-400" />
-            Parameter: <span className="whitespace-nowrap"><Highlight>Nu (ν)</Highlight></span>
-          </h4>
-          <input 
-            type="range" min="0.01" max="0.5" step="0.01" value={nu} 
-            onChange={(e) => setNu(parseFloat(e.target.value))}
-            className="w-full h-4 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-yellow-400 mb-12"
+const Scene7Flexibility = ({ nu, setNu }: { nu: number, setNu: (v: number) => void }) => {
+  // Generate scattered points once, fixed positions
+  const points = useMemo(() => {
+    const pts = [];
+    // Dense normal cluster near center (will be inside at most nu values)
+    for (let i = 0; i < 24; i++) {
+      const r = 15 + Math.random() * 105;
+      const theta = Math.random() * Math.PI * 2;
+      pts.push({ x: Math.cos(theta) * r, y: Math.sin(theta) * r });
+    }
+    // Borderline points (may switch color as nu changes)
+    for (let i = 0; i < 8; i++) {
+      const r = 108 + Math.random() * 38;
+      const theta = Math.random() * Math.PI * 2;
+      pts.push({ x: Math.cos(theta) * r, y: Math.sin(theta) * r });
+    }
+    // Outliers far from center (usually red)
+    for (let i = 0; i < 8; i++) {
+      const r = 158 + Math.random() * 60;
+      const theta = Math.random() * Math.PI * 2;
+      pts.push({ x: Math.cos(theta) * r, y: Math.sin(theta) * r });
+    }
+    return pts;
+  }, []);
+
+  // Circle base is w-[280px] → radius = 140px; visual radius = 140 * scale
+  const circleRadius = 140 * (0.35 + nu * 1.3);
+
+  return (
+    <SlideContainer title="The Flexibility Balance" subtitle="Tuning the strictness of the Guardian.">
+      <div className="flex gap-32 items-center w-full">
+        <div className="relative w-[480px] h-[480px] flex items-center justify-center shrink-0">
+          <motion.div 
+            animate={{ scale: 0.35 + nu * 1.3, opacity: 1 }}
+            className="absolute w-[280px] h-[280px] border-4 border-yellow-400 rounded-full bg-yellow-400/5 shadow-[0_0_80px_rgba(250,176,5,0.15)]"
           />
-          <p className="text-3xl text-gray-400 leading-relaxed min-h-[10rem]">
-            {nu < 0.1 ? "Strict: Encloses almost all points. High risk of missing subtle anomalies." : 
-             nu > 0.3 ? "Relaxed: Allows more outliers. High risk of false alarms." : 
-             "Balanced: A compromise between precision and recall."}
-          </p>
+          {points.map((p, i) => {
+            const dist = Math.sqrt(p.x * p.x + p.y * p.y);
+            const isInside = dist <= circleRadius;
+            return (
+              <motion.div
+                key={i}
+                className="absolute rounded-full shadow-sm"
+                style={{ width: 13, height: 13, left: `calc(50% + ${p.x}px - 6.5px)`, top: `calc(50% + ${p.y}px - 6.5px)` }}
+                animate={{ backgroundColor: isInside ? '#4dabf7' : '#ff6b6b', boxShadow: isInside ? '0 0 8px rgba(77,171,247,0.6)' : '0 0 8px rgba(255,107,107,0.6)' }}
+                transition={{ duration: 0.4 }}
+              />
+            );
+          })}
+        </div>
+        <div className="flex-1 max-w-2xl space-y-16">
+          <div className="p-16 bg-white/5 rounded-[3rem] border border-white/10 shadow-xl">
+            <h4 className="text-5xl font-bold mb-12 flex items-center gap-6 whitespace-nowrap">
+              <RefreshCcw size={48} className="text-yellow-400" />
+              Parameter: <span className="whitespace-nowrap"><Highlight>Nu (ν)</Highlight></span>
+            </h4>
+            <input 
+              type="range" min="0.01" max="0.5" step="0.01" value={nu} 
+              onChange={(e) => setNu(parseFloat(e.target.value))}
+              className="w-full h-4 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-yellow-400 mb-12"
+            />
+            <p className="text-3xl text-gray-400 leading-relaxed min-h-[10rem]">
+              {nu < 0.1 ? "Strict: Encloses almost all points. High risk of missing subtle anomalies." : 
+               nu > 0.3 ? "Relaxed: Allows more outliers. High risk of false alarms." : 
+               "Balanced: A compromise between precision and recall."}
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-  </SlideContainer>
-);
+    </SlideContainer>
+  );
+};
 
 
 const Kernel3DView = () => {
@@ -377,7 +416,7 @@ const Scene9RBFMountain = () => {
             </p>
           </div>
         </div>
-        <div className="w-[600px] h-[600px] bg-black/40 rounded-[3rem] border border-white/5 overflow-hidden shadow-2xl relative">
+        <div className="w-[450px] h-[440px] bg-black/40 rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl relative">
           <Canvas>
             <PerspectiveCamera makeDefault position={[8, 8, 8]} />
             <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={0.5} />
@@ -403,12 +442,20 @@ const Scene9RBFMountain = () => {
 };
 
 const CameraHandler = ({ mode, isUserControlling }: { mode: 'flat' | 'hyper', isUserControlling: boolean }) => {
-  useFrame((state) => {
+  const { camera, controls } = useThree();
+
+  useFrame(() => {
     if (isUserControlling) return;
     const targetPos = mode === 'flat' ? new THREE.Vector3(0, 14, 0.1) : new THREE.Vector3(12, 4, 12);
-    state.camera.position.lerp(targetPos, 0.05);
-    state.camera.lookAt(0, 1.5, 0);
-    state.camera.updateProjectionMatrix();
+    camera.position.lerp(targetPos, 0.05);
+    // Keep OrbitControls' internal state in sync so it doesn't jump when user starts dragging
+    if (controls) {
+      (controls as any).target.set(0, 1.5, 0);
+      (controls as any).update();
+    } else {
+      camera.lookAt(0, 1.5, 0);
+      camera.updateProjectionMatrix();
+    }
   });
   return null;
 };
@@ -447,100 +494,108 @@ const SlicingIllustration = () => {
     }, 5000);
   };
 
+  // Gaussian bell: z = exp(-r²/4)*4 → peak at center (top), falloff at edges
+  // threshold = 1.5 → boundary radius r = sqrt(-4*ln(1.5/4)) ≈ 1.98
+  const THRESHOLD = 1.5;
+  const RING_RADIUS = 1.98;
+
   const points = useMemo(() => {
     return Array.from({ length: 200 }).map(() => {
       const r = Math.random() * 5;
       const theta = Math.random() * Math.PI * 2;
       const x = Math.cos(theta) * r;
       const y = Math.sin(theta) * r;
-      const z = (x * x + y * y) * 0.4;
+      const z = Math.exp(-(x * x + y * y) / 4) * 4; // Gaussian bell, peak=4 at center
       return { x, y, z, r };
     });
   }, []);
 
   return (
+    <div className="flex flex-col items-center w-full">
     <div 
-      className="relative w-[1000px] h-[650px] bg-black/40 rounded-[3rem] border border-white/5 overflow-hidden shadow-2xl mx-auto cursor-move"
+      className="relative w-[880px] h-[380px] bg-black/40 rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl mx-auto cursor-move"
       onPointerDown={handleInteraction}
       onPointerMove={handleInteraction}
       onWheel={handleInteraction}
     >
       <Canvas shadows camera={{ position: [10, 8, 10], fov: 45 }}>
         <CameraHandler mode={mode} isUserControlling={isUserControlling} />
-        <OrbitControls enableZoom={true} enablePan={false} />
-        <ambientLight intensity={0.5} />
-        <pointLight position={[10, 10, 10]} intensity={1.5} castShadow />
+        <OrbitControls makeDefault enableZoom={true} enablePan={false} target={[0, 1.5, 0]} />
+        <ambientLight intensity={0.6} />
+        <pointLight position={[10, 10, 10]} intensity={2} castShadow />
+        <pointLight position={[-10, 8, -10]} intensity={0.5} />
         
-        <gridHelper args={[20, 20, 0x333333, 0x111111]} position={[0, -0.1, 0]} />
+        <gridHelper args={[20, 20, 0x333333, 0x111111]} position={[0, -0.05, 0]} />
 
-        {/* The Slicing Hyperplane */}
-        <mesh position={[0, 2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[15, 15]} />
+        {/* The Slicing Hyperplane — at threshold height */}
+        <mesh position={[0, THRESHOLD, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[13, 13]} />
           <meshStandardMaterial 
             color="#fab005" 
             transparent 
-            opacity={0.4} 
+            opacity={0.55} 
             side={THREE.DoubleSide}
             emissive="#fab005"
-            emissiveIntensity={0.3}
+            emissiveIntensity={0.5}
           />
         </mesh>
-        <gridHelper args={[15, 15, 0xfab005, 0xfab005]} position={[0, 2.01, 0]} material-opacity={0.2} material-transparent />
+        {/* Bright grid on the hyperplane for clarity */}
+        <gridHelper args={[13, 13, 0xfab005, 0xfab005]} position={[0, THRESHOLD + 0.01, 0]} material-opacity={0.35} material-transparent />
 
-        {/* Points */}
+        {/* Points — blue = above threshold (normal/peak), red = below (anomaly/edge) */}
         {points.map((p, i) => (
           <mesh key={i} position={[p.x, p.z, p.y]}>
             <sphereGeometry args={[0.12, 12, 12]} />
             <meshStandardMaterial 
-              color={p.z > 2 ? "#ff6b6b" : "#4dabf7"} 
-              emissive={p.z > 2 ? "#c92a2a" : "#1c7ed6"}
-              emissiveIntensity={0.5}
+              color={p.z > THRESHOLD ? "#4dabf7" : "#ff6b6b"} 
+              emissive={p.z > THRESHOLD ? "#1c7ed6" : "#c92a2a"}
+              emissiveIntensity={0.6}
             />
           </mesh>
         ))}
 
-        {/* 2D Boundary Circle (only visible in flat mode) */}
+        {/* 2D Boundary Circle — positioned AT the threshold height so it's the actual cut line */}
         {mode === 'flat' && (
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
-            <ringGeometry args={[2.236, 2.336, 64]} />
-            <meshBasicMaterial color="#fab005" transparent opacity={0.8} />
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, THRESHOLD, 0]}>
+            <ringGeometry args={[RING_RADIUS - 0.06, RING_RADIUS + 0.06, 80]} />
+            <meshBasicMaterial color="#fab005" transparent opacity={1} />
           </mesh>
         )}
       </Canvas>
+    </div>
 
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
-        <div className="px-6 py-2 bg-yellow-400/20 border border-yellow-400/40 rounded-full backdrop-blur-md">
-          <p className="text-yellow-400 font-mono text-sm font-bold uppercase tracking-[0.3em]">
-            {mode === 'flat' ? 'Input Space (2D View)' : 'Feature Space (3D View)'}
-          </p>
-        </div>
-        <p className="text-gray-500 text-xs font-mono">
-          {mode === 'flat' ? 'Non-linear boundary in 2D' : 'Linear hyperplane slicing the 3D projection'}
+    {/* Label placed OUTSIDE the canvas so it doesn't overlap the visualization */}
+    <div className="flex flex-col items-center gap-1 mt-2">
+      <div className="px-6 py-1.5 bg-yellow-400/20 border border-yellow-400/40 rounded-full backdrop-blur-md">
+        <p className="text-yellow-400 font-mono text-sm font-bold uppercase tracking-[0.3em]">
+          {mode === 'flat' ? 'Input Space (2D View)' : 'Feature Space (3D View)'}
         </p>
       </div>
+      <p className="text-gray-500 text-xs font-mono">
+        {mode === 'flat' ? 'Non-linear boundary in 2D' : 'Linear hyperplane slicing the 3D projection'}
+      </p>
+    </div>
     </div>
   );
 };
 
 const Scene10Slicing = () => (
   <SlideContainer title="Slicing the Norm" subtitle="The Hyperplane as a threshold.">
-    <div className="max-w-7xl flex flex-col items-center gap-8">
-      <div className="p-8 bg-white/5 rounded-[2rem] border border-white/10 backdrop-blur-sm w-full max-w-5xl">
-        <p className="text-3xl text-gray-300 leading-relaxed mb-6 text-center font-bold">
+    <div className="w-full flex flex-col items-center gap-5">
+      <div className="p-5 bg-white/5 rounded-[1.5rem] border border-white/10 backdrop-blur-sm w-full max-w-4xl">
+        <p className="text-2xl text-gray-300 leading-relaxed mb-4 text-center font-bold">
           In this high-dimensional space, we don't draw a circle. We draw a <span className="whitespace-nowrap"><Highlight>Flat Plane</Highlight></span>.
         </p>
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-6">
           <div className="flex-1 h-1 bg-gradient-to-r from-transparent via-yellow-400 to-transparent shadow-[0_0_20px_rgba(250,176,5,0.6)]" />
-          <p className="text-yellow-400 font-mono font-black text-2xl tracking-widest">DECISION BOUNDARY</p>
+          <p className="text-yellow-400 font-mono font-black text-xl tracking-widest">DECISION BOUNDARY</p>
           <div className="flex-1 h-1 bg-gradient-to-r from-transparent via-yellow-400 to-transparent shadow-[0_0_20px_rgba(250,176,5,0.6)]" />
         </div>
       </div>
-      
-      <div className="my-4">
-        <SlicingIllustration />
-      </div>
 
-      <p className="text-2xl text-gray-500 text-center italic font-light mt-4">"Anything that doesn't reach this height is an anomaly."</p>
+      <SlicingIllustration />
+
+      <p className="text-lg text-gray-500 text-center italic font-light">"Anything that doesn't reach this height is an anomaly."</p>
     </div>
   </SlideContainer>
 );
@@ -736,9 +791,10 @@ const Scene15InteractiveLab = ({ nu, setNu, gamma, setGamma }: any) => {
 
   return (
     <SlideContainer title="Interactive Lab: The Guardian's Logic" subtitle="Visualize how math shapes the boundary of trust.">
-      <div className="flex gap-16 items-center w-full max-w-[100rem] h-full pb-10">
-        {/* Visualization Area */}
-        <div className="relative w-[750px] h-[750px] bg-black/40 rounded-[3rem] border border-white/5 overflow-hidden shadow-2xl shrink-0">
+      <div className="flex gap-8 items-center w-full h-full pb-4">
+        {/* Left column: Visualization + Stats */}
+        <div className="flex flex-col gap-2 shrink-0">
+        <div className="relative w-[480px] h-[480px] bg-black/40 rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl">
           <svg viewBox="-10 -10 20 20" className="w-full h-full">
             {/* Decision Surface */}
             <g opacity="0.4">
@@ -869,29 +925,35 @@ const Scene15InteractiveLab = ({ nu, setNu, gamma, setGamma }: any) => {
               />
             ))}
           </svg>
+        </div>
 
-          {/* Stats Overlay */}
-          <div className="absolute bottom-6 left-6 bg-black/60 backdrop-blur-md p-5 rounded-2xl border border-white/10 font-mono text-sm space-y-2">
-            <div className="flex justify-between gap-8">
-              <span className="text-gray-500 uppercase">Total Points</span>
-              <span className="text-lg">{normalPoints.length + anomalyPoints.length}</span>
-            </div>
-            <div className="flex justify-between gap-8">
-              <span className="text-red-400 uppercase">Outliers</span>
-              <span className="text-red-400 font-bold text-lg">{outlierCount}</span>
-            </div>
-            <div className="flex justify-between gap-8">
-              <span className="text-yellow-400 uppercase">Threshold (ρ)</span>
-              <span className="text-lg">{rho.toFixed(4)}</span>
-            </div>
+        {/* Stats Legend — compact horizontal bar OUTSIDE the canvas */}
+        <div className="flex items-center gap-5 font-mono text-xs bg-black/50 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 w-full">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-gray-400" />
+            <span className="text-gray-500 uppercase tracking-wider">Points</span>
+            <span className="text-white font-bold">{normalPoints.length + anomalyPoints.length}</span>
           </div>
+          <div className="w-px h-4 bg-white/10" />
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-red-400" />
+            <span className="text-red-400 uppercase tracking-wider">Outliers</span>
+            <span className="text-red-400 font-bold">{outlierCount}</span>
+          </div>
+          <div className="w-px h-4 bg-white/10" />
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-yellow-400" />
+            <span className="text-yellow-400 uppercase tracking-wider">ρ</span>
+            <span className="text-yellow-400 font-bold">{rho.toFixed(4)}</span>
+          </div>
+        </div>
         </div>
 
         {/* Controls & Math Area */}
-        <div className="flex-1 space-y-12">
-          <div className="bg-white/5 p-12 rounded-[3rem] border border-white/10 backdrop-blur-sm">
-            <h4 className="text-sm font-bold text-gray-500 uppercase tracking-[0.2em] mb-8">The Decision Equation</h4>
-            <div className="math-font text-5xl text-center py-6 whitespace-nowrap">
+        <div className="flex-1 space-y-6">
+          <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
+            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] mb-4">The Decision Equation</h4>
+            <div className="math-font text-3xl text-center py-3 whitespace-nowrap">
               f(x) = sgn( 
               <EquationPart active={hoveredParam === 'gamma'} label="Kernel Width">
                 Σ αᵢ K<sub className="text-sm">γ</sub>(x, xᵢ)
@@ -902,7 +964,7 @@ const Scene15InteractiveLab = ({ nu, setNu, gamma, setGamma }: any) => {
               </EquationPart>
               )
             </div>
-            <div className="mt-10 text-2xl text-gray-400 leading-relaxed min-h-[8rem]">
+            <div className="mt-4 text-base text-gray-400 leading-relaxed min-h-[4rem]">
               {hoveredParam === 'nu' ? (
                 <p>The parameter <Highlight>ν (Nu)</Highlight> directly determines the value of <Highlight>ρ (Rho)</Highlight>. It sets the "height" of the slice through our similarity mountain.</p>
               ) : hoveredParam === 'gamma' ? (
@@ -913,7 +975,7 @@ const Scene15InteractiveLab = ({ nu, setNu, gamma, setGamma }: any) => {
             </div>
           </div>
 
-          <div className="space-y-10 px-4">
+          <div className="space-y-4 px-2">
             <div 
               className="space-y-4"
               onMouseEnter={() => setHoveredParam('nu')}
@@ -1049,8 +1111,8 @@ export const Presentation = () => {
     const handleResize = () => {
       if (containerRef.current) {
         const { clientWidth, clientHeight } = containerRef.current;
-        const targetWidth = 1920;
-        const targetHeight = 1080;
+        const targetWidth = 1440;
+        const targetHeight = 810;
         const scaleX = clientWidth / targetWidth;
         const scaleY = clientHeight / targetHeight;
         setScale(Math.min(scaleX, scaleY));
@@ -1100,8 +1162,8 @@ export const Presentation = () => {
         <div 
           className="absolute top-1/2 left-1/2"
           style={{ 
-            width: 1920, 
-            height: 1080, 
+            width: 1440, 
+            height: 810, 
             transform: `translate(-50%, -50%) scale(${scale})`,
             transformOrigin: 'center center'
           }}
